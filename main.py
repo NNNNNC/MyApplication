@@ -5,8 +5,8 @@ app = Flask(__name__)
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '09102001nico'
-app.config['MYSQL_DB'] = 'mydb'
+app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_DB'] = 'myDatabase'
 
 mysql = MySQL(app)
 
@@ -14,25 +14,21 @@ mysql = MySQL(app)
 @app.route('/')
 def index():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM customers")
-    customers = cur.fetchall()
+    cur.execute("SELECT * FROM dogs")
+    dogs = cur.fetchall()
     cur.close()
 
-    return render_template('index.html', customers=customers)
+    return render_template('index.html', dogs=dogs)
 
 @app.route('/add', methods=['POST'])
 def add():
     if request.method == 'POST':
-        first_name = request.form['first_name']
-        middle_name = request.form['middle_name']
-        last_name = request.form['last_name']
-        gender = request.form['gender']
-        email = request.form['email']
-        phone_number = request.form['phone_number']
-        town_city = request.form['town_city']
-        country = request.form['country']
+        breed = request.form['breed']
+        owner = request.form['owner']
+        name = request.form['name']
+        color = request.form['color']
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO customers (first_name, middle_name, last_name, gender, email, phone_number, town_city, country) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", (first_name, middle_name, last_name, gender, email, phone_number, town_city, country))
+        cur.execute("INSERT INTO dogs (breed, owner, name, color) VALUES (%s, %s, %s, %s)", (breed, owner, name, color))
         mysql.connection.commit()
         cur.close()
 
@@ -42,30 +38,30 @@ def add():
 def edit(id):
     cur = mysql.connection.cursor()
     if request.method == 'POST':
-        first_name = request.form['first_name']
-        middle_name = request.form['middle_name']
-        last_name = request.form['last_name']
-        gender = request.form['gender']
-        email = request.form['email']
-        phone_number = request.form['phone_number']
-        town_city = request.form['town_city']
-        country = request.form['country']
-        cur.execute("UPDATE customers SET first_name=%s, middle_name=%s, last_name=%s, gender=%s, email=%s, phone_number=%s, town_city=%s, country=%s WHERE id=%s", (first_name, middle_name, last_name, gender, email, phone_number, town_city, country, id))
+        breed = request.form['breed']
+        owner = request.form['owner']
+        name = request.form['name']
+        color = request.form['color']
+        cur.execute("UPDATE dogs SET breed=%s, owner=%s, name=%s, color=%s WHERE id=%s", (breed, owner, name, color, id))
         mysql.connection.commit()
         cur.close()
 
         return redirect(url_for('index'))
     else:
-        cur.execute("SELECT * FROM customers WHERE id = %s", (id,))
-        customer = cur.fetchone()
+        cur.execute("SELECT * FROM dogs WHERE id = %s", (id,))
+        dog = cur.fetchone()
         cur.close()
 
-        return render_template('edit_add.html', customer=customer)
+        return render_template('edit_add.html', dog=dog)
+
+@app.route('/new')
+def new():
+    return render_template('edit_add.html', dog=None)
 
 @app.route('/delete/<int:id>')
 def delete(id):
     cur = mysql.connection.cursor()
-    cur.execute("DELETE FROM customers WHERE id = %s", (id,))
+    cur.execute("DELETE FROM dogs WHERE id = %s", (id,))
     mysql.connection.commit()
     cur.close()
 
